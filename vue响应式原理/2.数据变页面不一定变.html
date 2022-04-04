@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+  <div id ='app'>
+    {{user}}
+    <hr>  
+    <button @click='changeName'>changeName</button>
+  </div>
+</body>
+<script>
+  new Vue({
+    el:'#app',
+    data:{
+      user:{
+        age:15
+      }
+    },
+    methods: {
+      changeName(){
+        // 单独使用this.user.age = 100这一句，页面会展示name属性
+        // this.user.age = 100 
+
+        // 单独使用this.user.name = '韩梅梅'这一句，页面不会展示name属性,但是加上this.user.age = 100这一句同时使用，页面居然会展示name属性
+        // 参考博客中的一个评论：
+        // 对象添加属性，页面没有变，我觉得是因为页面没有用到user.name这个属性吧，这样就没有构成依赖关系，
+        // 而源码中的dep对象里面的subs数组存储的是具有依赖关系的watcher，所以你修改user. name属性，页面是不会有更新的
+        // 我理解的：因为依赖关系，age变化了，同一对象的name也会检测。age的赋值触发了页面更新
+        this.$nextTick(()=>{
+          this.user.name = '韩梅梅'
+        })
+         
+
+        // set 将数据用 object.defainPropty进行处理 添加getter和setter
+        // 单独使用this.$set(this.user,'name','韩梅梅')这一句，页面会展示name属性
+        // this.$set(this.user,'name','韩梅梅') 
+        console.log(this.user)
+      }
+    },
+  })
+</script>
+</html>
+<!-- 
+  问题：
+  数据变页面一定变么？
+  不一定，数据变页面变的原因是因为数据劫持了data
+
+
+  情况：
+  在changeName中使用this.user.name = '韩梅梅'
+  此时点击按钮，页面的user值并不能改变，还是只显示{"age":15}
+  打开控制台发现只有age有getter和setter，新添加的属性name没有getter和setter
+  原因：
+  Vue 无法检测到对象属性的添加或删除，所以没法进行响应式改变数据
+  解决：
+  在changeName中使用this.$set(this.user,'name','韩梅梅')
+  set 将数据用 object.defainPropty进行处理 添加getter和setter
+
+
+  参考：
+  https://blog.csdn.net/weixin_45959504/article/details/104822982
+ -->
